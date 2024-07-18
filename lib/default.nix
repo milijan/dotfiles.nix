@@ -1,8 +1,8 @@
 {inputs}: let
   defaultGit = {
     extraConfig.github.user = defaultUsername;
-    userEmail = "4638629+erikreinert@users.noreply.github.com";
-    userName = "Erik Reinert";
+    userEmail = "1288060+milijan@users.noreply.github.com";
+    userName = "milijan";
   };
 
   defaultStore = {
@@ -14,7 +14,7 @@
     type = "vmware";
   };
 
-  defaultUsername = "erikreinert";
+  defaultUsername = "milijan";
 
   homeManagerNixos = import ./nixos/home-manager.nix {inherit inputs;};
   homeManagerShared = import ./shared/home-manager.nix {inherit inputs;};
