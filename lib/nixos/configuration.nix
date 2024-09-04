@@ -2,6 +2,7 @@
   desktop,
   hypervisor,
   inputs,
+  store,
   username,
 }: {pkgs, ...}: {
   boot = {
@@ -12,14 +13,30 @@
     };
   };
 
-  fonts = {
-    fontconfig = {
-      defaultFonts.monospace = ["GeistMono"];
-      enable = true;
+  fileSystems =
+    {}
+    // pkgs.lib.optionalAttrs hypervisor.sharing.enable {
+      "/mnt/hgfs" = {
+        device = ".host:/";
+        fsType = "fuse./run/current-system/sw/bin/vmhgfs-fuse";
+        options = [
+          "allow_other"
+          "auto_unmount"
+          "defaults"
+          "gid=1000"
+          "uid=1000"
+          "umask=22"
+        ];
+      };
+    }
+    // pkgs.lib.optionalAttrs store.mount.enable {
+      "/nix" = {
+        device = "/dev/disk/by-label/nix";
+        fsType = "ext4";
+        neededForBoot = true;
+        options = ["noatime"];
+      };
     };
-
-    packages = [inputs.self.packages.${pkgs.system}.geist-mono];
-  };
 
   environment = {
     pathsToLink = ["/libexec" "/share/zsh"];
@@ -104,7 +121,17 @@
   };
 
   virtualisation = {
-    docker.enable = true;
+    docker = {
+      daemon = {
+        settings = {
+          "experimental" = true;
+          "features" = {
+            "containerd-snapshotter" = true;
+          };
+        };
+      };
+      enable = true;
+    };
 
     vmware.guest.enable =
       if hypervisor.type == "vmware"

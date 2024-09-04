@@ -1,4 +1,4 @@
-{pkgs, ...}: let
+{geist-mono}: {pkgs, ...}: let
   catppuccin-rofi = pkgs.fetchFromGitHub {
     owner = "catppuccin";
     repo = "rofi";
@@ -26,7 +26,7 @@ in {
           "Virtual-1" = {
             enable = true;
             dpi = 96;
-            mode = "1920x1080";
+            mode = "3440x1440";
             primary = true;
             rate = "60";
           };
@@ -55,6 +55,31 @@ in {
       "wireless _first_".enable = false;
       "battery all".enable = false;
     };
+  };
+
+  programs.kitty = {
+    enable = true;
+
+    font = {
+      name = "GeistMono";
+      package = geist-mono;
+      size = 14;
+    };
+
+    settings = {
+      allow_remote_control = "yes";
+      background_opacity = "0.9";
+      enabled_layouts = "splits";
+      hide_window_decorations = "titlebar-and-corners";
+      listen_on = "unix:/tmp/kitty";
+      macos_option_as_alt = "yes";
+      macos_quit_when_last_window_closed = "yes";
+      macos_titlebar_color = "system";
+      url_style = "single";
+      wayland_titlebar_color = "system";
+    };
+
+    theme = "Tokyo Night";
   };
 
   programs.rofi = {

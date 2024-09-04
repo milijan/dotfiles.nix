@@ -1,36 +1,20 @@
 {
+  geist-mono,
   hypervisor,
-  store,
   username,
 }: {
   lib,
   pkgs,
   ...
 }: {
-  fileSystems =
-    {}
-    // lib.optionalAttrs hypervisor.sharing.enable {
-      "/mnt/hgfs" = {
-        device = ".host:/";
-        fsType = "fuse./run/current-system/sw/bin/vmhgfs-fuse";
-        options = [
-          "allow_other"
-          "auto_unmount"
-          "defaults"
-          "gid=1000"
-          "uid=1000"
-          "umask=22"
-        ];
-      };
-    }
-    // lib.optionalAttrs store.mount.enable {
-      "/nix" = {
-        device = "/dev/disk/by-label/nix";
-        fsType = "ext4";
-        neededForBoot = true;
-        options = ["noatime"];
-      };
+  fonts = {
+    fontconfig = {
+      defaultFonts.monospace = ["GeistMono"];
+      enable = true;
     };
+
+    packages = [geist-mono];
+  };
 
   hardware = {
     graphics.enable = true;
@@ -79,6 +63,4 @@
       xkb.layout = "us";
     };
   };
-
-  sound.enable = true;
 }

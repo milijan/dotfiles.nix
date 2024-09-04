@@ -16,7 +16,6 @@
 
   defaultUsername = "milijan";
 
-  homeManagerNixos = import ./nixos/home-manager.nix {inherit inputs;};
   homeManagerShared = import ./shared/home-manager.nix {inherit inputs;};
 in {
   geist-mono = {
@@ -61,10 +60,13 @@ in {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.users.${username} = {pkgs, ...}: {
-            imports = [
-              (homeManagerShared {inherit git;})
-            ];
+            imports = [(homeManagerShared {inherit git;})];
+
             home.file."Library/Application Support/k9s/skin.yml".source = ../config/k9s/skin.yml;
+
+            home.sessionVariables = {
+              PATH = "/Applications/VMware Fusion.app/Contents/Library:$GOPATH/bin:$PATH";
+            };
           };
         }
       ];
@@ -77,23 +79,33 @@ in {
     store ? defaultStore,
     system,
     username ? defaultUsername,
-  }:
+  }: let
+    geist-mono = inputs.self.packages.${system}.geist-mono;
+  in
     inputs.nixpkgs.lib.nixosSystem {
       inherit system;
       modules =
         [
           (import ./nixos/hardware/${hypervisor.type}/${system}.nix)
-          (import ./nixos/configuration.nix {inherit hypervisor inputs desktop username;})
+          (import ./nixos/configuration.nix {inherit hypervisor inputs desktop store username;})
 
           inputs.home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.users."${username}" = {pkgs, ...}: {
-              imports = [
-                (homeManagerNixos {inherit desktop;})
-                (homeManagerShared {inherit git;})
-              ];
+              imports =
+                [
+                  (import ./nixos/home-manager.nix)
+                  (homeManagerShared {inherit git;})
+                ]
+                ++ (
+                  if desktop
+                  then [
+                    (import ./nixos/home-manager-desktop.nix {inherit geist-mono;})
+                  ]
+                  else []
+                );
             };
           }
         ]
@@ -101,7 +113,7 @@ in {
           (import
             ./nixos/configuration-desktop.nix
             {
-              inherit hypervisor store username;
+              inherit geist-mono hypervisor username;
             })
         ];
     };

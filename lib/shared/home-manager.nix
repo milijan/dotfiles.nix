@@ -1,4 +1,6 @@
 {inputs}: {git}: {pkgs, ...}: let
+  awscli2 = inputs.nixpkgs-stable.legacyPackages.${system}.awscli2;
+  delta = inputs.nixpkgs-stable.legacyPackages.${system}.delta;
   isDarwin = system == "aarch64-darwin" || system == "x86_64-darwin";
   system = pkgs.system;
 in {
@@ -14,15 +16,14 @@ in {
     # settings
     background-opacity = 0.9
     font-family = GeistMono NFM
-    font-size = 18
+    font-size = 20
     macos-option-as-alt = true
     theme = TokyoNight
   '';
 
   home.packages = with pkgs; [
     awscli2
-    cachix
-    charm-freeze
+    devcontainer
     doppler
     fd
     gh
@@ -30,10 +31,8 @@ in {
     jq
     k9s
     kubectl
-    lazydocker
     ripgrep
     shell-gpt
-    slides
     z-lua
   ];
 
@@ -45,7 +44,6 @@ in {
     LANG = "en_US.UTF-8";
     LC_ALL = "en_US.UTF-8";
     LC_CTYPE = "en_US.UTF-8";
-    PATH = "$PATH:$GOPATH/bin";
     PULUMI_K8S_SUPPRESS_HELM_HOOK_WARNINGS = "true";
     PULUMI_SKIP_UPDATE_CHECK = "true";
   };
@@ -87,6 +85,7 @@ in {
     {
       delta = {
         enable = true;
+        package = delta;
         options = {
           chameleon = {
             blame-code-style = "syntax";
@@ -141,31 +140,6 @@ in {
   programs.go = {
     enable = true;
     goPath = "Development/language/go";
-  };
-
-  programs.kitty = {
-    enable = true;
-
-    font = {
-      name = "GeistMono";
-      package = inputs.self.packages.${pkgs.system}.geist-mono;
-      size = 14;
-    };
-
-    settings = {
-      allow_remote_control = "yes";
-      background_opacity = "0.9";
-      enabled_layouts = "splits";
-      hide_window_decorations = "titlebar-and-corners";
-      listen_on = "unix:/tmp/kitty";
-      macos_option_as_alt = "yes";
-      macos_quit_when_last_window_closed = "yes";
-      macos_titlebar_color = "system";
-      url_style = "single";
-      wayland_titlebar_color = "system";
-    };
-
-    theme = "Tokyo Night";
   };
 
   programs.lazygit = {
